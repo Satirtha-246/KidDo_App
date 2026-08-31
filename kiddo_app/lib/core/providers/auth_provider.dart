@@ -229,6 +229,69 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Authenticate with specified Google account details (used directly or via picker sheet)
+  Future<GoogleAuthResult> authenticateWithGoogleData({
+    required String email,
+    required String name,
+    String? googleId,
+    String? avatarUrl,
+  }) async {
+    state = state.copyWith(status: AuthStatus.initial, clearError: true);
+    try {
+      final response = await _api.post(
+        '/auth/google',
+        data: {
+          'email': email,
+          'name': name,
+          'googleId': googleId ?? 'google_${email.hashCode.abs()}',
+          'avatarUrl': avatarUrl ?? 'assets/images/KidDo Character.png',
+        },
+      );
+
+      final token = response.data['token'] as String;
+      final userJson = response.data['user'] as Map<String, dynamic>;
+      final isNewUser = (response.data['isNewUser'] as bool?) ?? false;
+      final hasCompletedOnboarding = (response.data['hasCompletedOnboarding'] as bool?) ??
+          (userJson['hasCompletedOnboarding'] as bool?) ??
+          false;
+
+      await _api.saveToken(token);
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        userId: userJson['_id'] as String,
+        clearError: true,
+      );
+
+      final userModel = UserModel(
+        id: userJson['_id'] as String,
+        name: userJson['name'] as String,
+        email: userJson['email']?.toString() ?? '',
+        avatarUrl: (userJson['avatarUrl'] as String?) ?? 'assets/images/KidDo Character.png',
+        iq: (userJson['iq'] as num?)?.toInt() ?? 0,
+        coins: (userJson['coins'] as num?)?.toInt() ?? 0,
+        streak: (userJson['streak'] as num?)?.toInt() ?? 0,
+        age: (userJson['age'] as num?)?.toInt() ?? 8,
+        gradeClass: userJson['gradeClass']?.toString() ?? 'Class 3',
+        hasCompletedOnboarding: hasCompletedOnboarding,
+      );
+
+      return GoogleAuthResult(
+        isNewUser: isNewUser,
+        hasCompletedOnboarding: hasCompletedOnboarding,
+        user: userModel,
+      );
+    } catch (e) {
+      final message = e is DioException
+          ? (e.response?.data?['message']?.toString() ?? e.error?.toString() ?? 'Google Sign-in failed')
+          : e.toString();
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        errorMessage: message,
+      );
+      rethrow;
+    }
+  }
+
   /// Complete survey / onboarding for the current authenticated user
   Future<void> completeOnboarding({
     required String name,

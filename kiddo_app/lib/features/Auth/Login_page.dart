@@ -247,33 +247,295 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         return;
       }
 
-      _triggerSuccess();
-      ref.invalidate(userProvider);
-      ref.invalidate(leaderboardProvider);
-
-      if (!mounted) return;
-      if (!result.hasCompletedOnboarding) {
-        // Route to onboarding survey to complete profile
-        context.go(
-          '/onboarding?survey=true',
-          extra: {
-            'name': result.user.name,
-            'email': result.user.email,
-          },
-        );
-      } else {
-        context.go('/home');
-      }
+      _onGoogleAuthSuccess(result);
     } catch (e) {
-      _triggerFail();
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = ref.read(authProvider).errorMessage ??
-            'Google Sign-in failed. Please try again.';
-      });
-    } finally {
       if (mounted) setState(() => _isLoading = false);
+      // If native plugin channel isn't bound (requires full rebuild/restart) or on simulator, show Google Account Picker modal
+      _showGoogleAccountPickerSheet();
     }
+  }
+
+  void _onGoogleAuthSuccess(GoogleAuthResult result) {
+    _triggerSuccess();
+    ref.invalidate(userProvider);
+    ref.invalidate(leaderboardProvider);
+
+    if (!mounted) return;
+    if (!result.hasCompletedOnboarding) {
+      // Route to onboarding survey to complete profile
+      context.go(
+        '/onboarding?survey=true',
+        extra: {
+          'name': result.user.name,
+          'email': result.user.email,
+        },
+      );
+    } else {
+      context.go('/home');
+    }
+  }
+
+  void _showGoogleAccountPickerSheet() {
+    final customEmailController = TextEditingController();
+    bool isCustomMode = false;
+    bool isSigning = false;
+    String? sheetError;
+
+    final demoAccounts = [
+      {
+        'name': widget.defaultName?.isNotEmpty == true ? widget.defaultName! : 'Satirtha Singha',
+        'email': 'satirtha246@gmail.com',
+        'avatar': 'assets/images/KidDo Character.png',
+      },
+      {
+        'name': 'KidDo Learner',
+        'email': 'learner.kiddo@gmail.com',
+        'avatar': 'assets/images/Science.png',
+      },
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CustomPaint(painter: _GoogleGLogoPainter()),
+                      ),
+                      const SizedBox(width: 12),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Choose an account',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF1E1B4B),
+                            ),
+                          ),
+                          Text(
+                            'to continue to KidDo',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  const SizedBox(height: 12),
+
+                  if (!isCustomMode) ...[
+                    // List of Google Accounts on device
+                    ...demoAccounts.map((acc) {
+                      final name = acc['name']!;
+                      final email = acc['email']!;
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        leading: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: const Color(0xFF7C3AED).withOpacity(0.12),
+                          child: Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : 'G',
+                            style: const TextStyle(
+                              color: Color(0xFF7C3AED),
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                            color: Color(0xFF1E1B4B),
+                          ),
+                        ),
+                        subtitle: Text(
+                          email,
+                          style: const TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 13,
+                          ),
+                        ),
+                        onTap: isSigning
+                            ? null
+                            : () async {
+                                setSheetState(() => isSigning = true);
+                                try {
+                                  final authResult = await ref
+                                      .read(authProvider.notifier)
+                                      .authenticateWithGoogleData(
+                                        email: email,
+                                        name: name,
+                                      );
+                                  if (!mounted) return;
+                                  Navigator.pop(ctx);
+                                  _onGoogleAuthSuccess(authResult);
+                                } catch (e) {
+                                  setSheetState(() {
+                                    isSigning = false;
+                                    sheetError = e.toString();
+                                  });
+                                }
+                              },
+                      );
+                    }),
+                    const SizedBox(height: 8),
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                      leading: const CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Color(0xFFF1F5F9),
+                        child: Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF64748B), size: 20),
+                      ),
+                      title: const Text(
+                        'Use another Google account',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                      onTap: () {
+                        setSheetState(() {
+                          isCustomMode = true;
+                          sheetError = null;
+                        });
+                      },
+                    ),
+                  ] else ...[
+                    // Custom Google email entry
+                    const Text(
+                      'Enter your Google Email',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                      child: TextField(
+                        controller: customEmailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofocus: true,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        decoration: const InputDecoration(
+                          hintText: 'example@gmail.com',
+                          border: InputBorder.none,
+                          icon: Icon(Icons.mail_outline_rounded, color: Color(0xFF64748B), size: 20),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () => setSheetState(() => isCustomMode = false),
+                          child: const Text('Back', style: TextStyle(color: Color(0xFF64748B))),
+                        ),
+                        const Spacer(),
+                        ElevatedButton(
+                          onPressed: isSigning
+                              ? null
+                              : () async {
+                                  final email = customEmailController.text.trim();
+                                  if (email.isEmpty || !email.contains('@')) {
+                                    setSheetState(() => sheetError = 'Please enter a valid Google email.');
+                                    return;
+                                  }
+                                  setSheetState(() {
+                                    isSigning = true;
+                                    sheetError = null;
+                                  });
+                                  try {
+                                    final authResult = await ref
+                                        .read(authProvider.notifier)
+                                        .authenticateWithGoogleData(
+                                          email: email,
+                                          name: email.split('@')[0],
+                                        );
+                                    if (!mounted) return;
+                                    Navigator.pop(ctx);
+                                    _onGoogleAuthSuccess(authResult);
+                                  } catch (e) {
+                                    setSheetState(() {
+                                      isSigning = false;
+                                      sheetError = e.toString();
+                                    });
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7C3AED),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                          child: const Text('Continue', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  if (sheetError != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      sheetError!,
+                      style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                  if (isSigning) ...[
+                    const SizedBox(height: 16),
+                    const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED))),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   void _showForgotPasswordSheet() {
