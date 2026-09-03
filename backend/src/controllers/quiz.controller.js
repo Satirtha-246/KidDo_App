@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const QuizQuestion = require('../models/QuizQuestion');
 const QuizAttempt = require('../models/QuizAttempt');
 const User = require('../models/User');
+const SystemConfig = require('../models/SystemConfig');
 
 const IQ_PER_CORRECT = 10;
 const COINS_PER_CORRECT = 2;
@@ -162,21 +163,28 @@ exports.submitAttempt = async (req, res, next) => {
     const { subject, unitNumber, quizName, correctCount, totalQuestions } = req.body;
     const userId = req.user._id;
 
-    const iqEarned = correctCount * IQ_PER_CORRECT;
-    const coinsEarned = correctCount * COINS_PER_CORRECT;
-    const score = Math.round((correctCount / totalQuestions) * 100);
+    const percentage = (correctCount / totalQuestions) * 100;
 
-    // Star thresholds: 1 star = 50%+, 2 stars = 75%+, 3 stars = 90%+
-    let stars = 0;
-    if (score >= 90) stars = 3;
-    else if (score >= 75) stars = 2;
-    else if (score >= 50) stars = 1;
+    let stars = 1;
+    if (percentage >= 90) stars = 3;
+    else if (percentage >= 60) stars = 2;
+
+    let baseIq = stars * 10;
+    const coinsEarned = stars * 5;
+
+    // Apply Live SystemConfig Multipliers (Double XP Weekend, etc.)
+    const config = await SystemConfig.findOne({ key: 'global_settings' });
+    const multiplier = config ? (config.doubleXpEnabled ? 2.0 : (config.baseXpMultiplier || 1.0)) : 1.0;
+    const iqEarned = Math.round(baseIq * multiplier);
 
     // Save attempt log
     await QuizAttempt.create({
       userId,
       subject,
-      score,
+      unitNumber,
+      quizName,
+      stars,
+      score: percentage,
       correctCount,
       totalQuestions,
       iqEarned,

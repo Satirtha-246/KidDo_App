@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
+const path = require('path');
+
 // Route imports
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/users.routes');
@@ -9,6 +11,8 @@ const quizRoutes = require('./routes/quiz.routes');
 const levelRoutes = require('./routes/levels.routes');
 const shopRoutes = require('./routes/shop.routes');
 const gamesRoutes = require('./routes/games.routes');
+const adminRoutes = require('./routes/admin.routes');
+const BroadcastMessage = require('./models/BroadcastMessage');
 
 // Middleware imports
 const errorHandler = require('./middleware/errorHandler');
@@ -27,16 +31,19 @@ app.use(
       }
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// ── Serve Admin Portal Static Files ───────────────────────────────────────────
+app.use('/admin', express.static(path.join(__dirname, '../public/admin')));
 
 // ── Health Check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -48,6 +55,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ── Public Broadcasts Endpoint (for in-app announcements) ───────────────────────
+app.get('/api/announcements', async (req, res, next) => {
+  try {
+    const active = await BroadcastMessage.find({ active: true })
+      .sort({ createdAt: -1 })
+      .limit(5);
+    res.status(200).json({ success: true, announcements: active });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── API Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -55,6 +74,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/levels', levelRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/games', gamesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ── 404 Handler ────────────────────────────────────────────────────────────────
 app.use((req, res) => {

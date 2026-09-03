@@ -37,6 +37,19 @@ const userSchema = new mongoose.Schema(
     gradeClass: { type: String, default: 'Class 3' },
     hasCompletedOnboarding: { type: Boolean, default: false },
 
+    // ── RBAC & Account Controls ──────────────────────────────────────────────
+    role: {
+      type: String,
+      enum: ['student', 'content_creator', 'admin'],
+      default: 'student',
+      index: true,
+    },
+    isBanned: { type: Boolean, default: false },
+    forceLogoutBefore: { type: Date, default: null },
+    deviceType: { type: String, default: 'iOS/Android' },
+    appVersion: { type: String, default: '1.0.0' },
+    lastLoginAt: { type: Date, default: Date.now },
+
     // ── Gamification ────────────────────────────────────────────────────────
     iq: { type: Number, default: 0 },
     coins: { type: Number, default: 0 },

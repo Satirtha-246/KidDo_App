@@ -36,6 +36,25 @@ const protect = async (req, res, next) => {
       });
     }
 
+    // Check if user is banned
+    if (user.isBanned) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended. Please contact support.',
+      });
+    }
+
+    // Check if user was forced to logout after token creation
+    if (user.forceLogoutBefore && decoded.iat) {
+      const tokenIat = decoded.iat * 1000;
+      if (new Date(user.forceLogoutBefore).getTime() > tokenIat) {
+        return res.status(401).json({
+          success: false,
+          message: 'Session invalidated by administrator. Please log in again.',
+        });
+      }
+    }
+
     req.user = user;
     next();
   } catch (err) {
@@ -47,6 +66,22 @@ const protect = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+/**
+ * Role-Based Access Control (RBAC) middleware.
+ * Example: restrictTo('admin') or restrictTo('admin', 'content_creator')
+ */
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Forbidden: requires one of the following roles: [${roles.join(', ')}]`,
+      });
+    }
+    next();
+  };
 };
 
 /**
@@ -67,7 +102,7 @@ const optionalAuth = async (req, res, next) => {
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.id);
-      if (user) req.user = user;
+      if (user && !user.isBanned) req.user = user;
     }
     next();
   } catch (err) {
@@ -76,4 +111,4 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { protect, optionalAuth };
+module.exports = { protect, restrictTo, optionalAuth };

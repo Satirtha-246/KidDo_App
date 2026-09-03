@@ -391,14 +391,94 @@ const seed = async () => {
     await ShopItem.deleteMany({});
 
     // Insert quiz questions
-    console.log('📝 Seeding 25 quiz questions...');
-    const insertedQuestions = await QuizQuestion.insertMany(quizQuestions);
+    console.log('📝 Seeding quiz questions...');
+    const formattedQuestions = quizQuestions.map((q, idx) => {
+      const opts = q.options.map((o) => (typeof o === 'string' ? o : o.text));
+      const correctIdx = q.correctIndex !== undefined ? q.correctIndex : 0;
+      return {
+        subject: q.subject,
+        gradeClass: 'Class 3',
+        chapter: 'Chapter 1',
+        unitNumber: Math.floor(idx / 3) + 1,
+        unitName: `Unit ${Math.floor(idx / 3) + 1}: Foundations`,
+        quizName: `Quiz ${(idx % 3) + 1}: Practice Challenge`,
+        question: q.question,
+        type: 'MCQ',
+        options: opts,
+        correctAnswer: opts[correctIdx] || opts[0],
+        correctIndex: correctIdx,
+        difficulty: q.difficulty || 'easy',
+      };
+    });
+    const insertedQuestions = await QuizQuestion.insertMany(formattedQuestions);
     console.log(`   ✅ Inserted ${insertedQuestions.length} quiz questions`);
 
     // Insert shop items
     console.log('🛒 Seeding 7 shop items...');
     const insertedItems = await ShopItem.insertMany(shopItems);
     console.log(`   ✅ Inserted ${insertedItems.length} shop items`);
+
+    // Seed Admin & Content Creator Users
+    console.log('👤 Seeding Administrator and Content Creator accounts...');
+    const bcrypt = require('bcryptjs');
+    const User = require('../models/User');
+    const SystemConfig = require('../models/SystemConfig');
+    const BroadcastMessage = require('../models/BroadcastMessage');
+
+    const adminSalt = await bcrypt.genSalt(12);
+    const adminPassHash = await bcrypt.hash('Admin@123', adminSalt);
+    const creatorPassHash = await bcrypt.hash('Creator@123', adminSalt);
+
+    await User.findOneAndUpdate(
+      { email: 'admin@kiddo.app' },
+      {
+        name: 'Chief Administrator',
+        email: 'admin@kiddo.app',
+        passwordHash: adminPassHash,
+        role: 'admin',
+        gradeClass: 'All',
+        hasCompletedOnboarding: true,
+      },
+      { upsert: true, new: true }
+    );
+
+    await User.findOneAndUpdate(
+      { email: 'creator@kiddo.app' },
+      {
+        name: 'Curriculum Creator',
+        email: 'creator@kiddo.app',
+        passwordHash: creatorPassHash,
+        role: 'content_creator',
+        gradeClass: 'All',
+        hasCompletedOnboarding: true,
+      },
+      { upsert: true, new: true }
+    );
+    console.log('   ✅ Admin account: admin@kiddo.app / Admin@123');
+    console.log('   ✅ Creator account: creator@kiddo.app / Creator@123');
+
+    // Seed System Config
+    await SystemConfig.findOneAndUpdate(
+      { key: 'global_settings' },
+      {
+        key: 'global_settings',
+        doubleXpEnabled: false,
+        baseXpMultiplier: 1.0,
+        bossBattleXpMultiplier: 1.5,
+        streakReminderEnabled: true,
+        streakReminderHour: 20,
+      },
+      { upsert: true, new: true }
+    );
+
+    // Seed Sample Broadcast
+    await BroadcastMessage.create({
+      title: '🌟 Welcome to KidDO!',
+      message: 'New interactive lessons and math puzzle levels are now available. Keep up your daily streak!',
+      type: 'event',
+      targetClass: 'All',
+      active: true,
+    });
 
     // Seed Games
     const seedGames = require('./seed_games');
