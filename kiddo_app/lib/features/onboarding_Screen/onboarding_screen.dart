@@ -80,21 +80,14 @@ class _MasterOnboardingScreenState
     }
   }
 
-  void _onClassSelected(String selectedClass) {
-    setState(() {
-      _gradeClass = selectedClass;
-    });
-    _nextPage();
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(), // Controlled step-by-step
+        physics:
+            const NeverScrollableScrollPhysics(), // Controlled step-by-step
         onPageChanged: (page) {
           setState(() {
             _currentPage = page;
@@ -163,7 +156,7 @@ class _MasterOnboardingScreenState
               ),
               const Spacer(),
               Image.asset(
-                'assets/images/KidDo Character.png',
+                'assets/images/kido_character.png',
                 height: 240,
                 fit: BoxFit.contain,
               ).animate().scale(duration: 500.ms, curve: Curves.elasticOut),
@@ -482,7 +475,10 @@ class _MasterOnboardingScreenState
               // White Card for Age Display & Slider
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 28,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(32),
@@ -528,8 +524,9 @@ class _MasterOnboardingScreenState
                         inactiveTrackColor: Colors.grey[200],
                         thumbColor: const Color(0xFFFFC727),
                         overlayColor: const Color(0xFFFFC727).withOpacity(0.2),
-                        thumbShape:
-                            const RoundSliderThumbShape(enabledThumbRadius: 14),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 14,
+                        ),
                         trackHeight: 8,
                       ),
                       child: Slider(
@@ -547,10 +544,34 @@ class _MasterOnboardingScreenState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('4', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                        Text('8', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                        Text('12', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                        Text('15', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                        Text(
+                          '4',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '8',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '12',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '15',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -611,7 +632,10 @@ class _MasterOnboardingScreenState
 
               // Speech Bubble
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -639,7 +663,7 @@ class _MasterOnboardingScreenState
 
               // Mascot holding pencil/notepad
               Image.asset(
-                'assets/images/KidDo Character.png',
+                'assets/images/kido_character_Question.png',
                 height: 200,
                 fit: BoxFit.contain,
               ).animate().fadeIn().slideY(begin: 0.1),
@@ -720,7 +744,10 @@ class _MasterOnboardingScreenState
 
               // Speech Bubble acknowledging name
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -746,7 +773,7 @@ class _MasterOnboardingScreenState
               const Spacer(),
 
               Image.asset(
-                'assets/images/KidDo Character.png',
+                'assets/images/kido_character.png',
                 height: 210,
                 fit: BoxFit.contain,
               ).animate().shake(duration: 400.ms),
@@ -812,7 +839,10 @@ class _MasterOnboardingScreenState
 
               // Speech bubble
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -856,10 +886,15 @@ class _MasterOnboardingScreenState
                     selectedColor: const Color(0xFF7C3AED),
                     backgroundColor: Colors.white,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF1E1E2C),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF1E1E2C),
                       fontWeight: FontWeight.bold,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
@@ -875,7 +910,7 @@ class _MasterOnboardingScreenState
               const Spacer(),
 
               Image.asset(
-                'assets/images/KidDo Character.png',
+                'assets/images/kido_character.png',
                 height: 160,
                 fit: BoxFit.contain,
               ),
@@ -963,7 +998,10 @@ class _MasterOnboardingScreenState
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
                 child: Column(
                   children: [
                     // Profile summary card (Name, Age, Class)
@@ -985,7 +1023,10 @@ class _MasterOnboardingScreenState
                               color: const Color(0xFF7C3AED).withOpacity(0.12),
                               shape: BoxShape.circle,
                             ),
-                            child: const Text('🎓', style: TextStyle(fontSize: 28)),
+                            child: const Text(
+                              '🎓',
+                              style: TextStyle(fontSize: 28),
+                            ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -1029,7 +1070,10 @@ class _MasterOnboardingScreenState
                       height: 180,
                       fit: BoxFit.contain,
                       errorBuilder: (_, __, ___) => const SizedBox(height: 120),
-                    ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
+                    ).animate().scale(
+                      duration: 400.ms,
+                      curve: Curves.elasticOut,
+                    ),
 
                     const SizedBox(height: 24),
 
@@ -1056,15 +1100,18 @@ class _MasterOnboardingScreenState
               ),
             ),
 
-            // Action Button (Complete Survey or Continue to Sign Up)
+            // Action Button (Continue to Sign Up)
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
               child: ElevatedButton(
                 onPressed: () async {
-                  final authState = ref.read(authProvider);
-                  if (authState.status == AuthStatus.authenticated && authState.userId != null) {
+                  if (widget.isSurveyMode &&
+                      ref.read(authProvider).status ==
+                          AuthStatus.authenticated) {
                     try {
-                      await ref.read(authProvider.notifier).completeOnboarding(
+                      await ref
+                          .read(authProvider.notifier)
+                          .completeOnboarding(
                             name: _name.isNotEmpty ? _name : 'KidDo Explorer',
                             age: _age,
                             gradeClass: _gradeClass,
@@ -1075,6 +1122,7 @@ class _MasterOnboardingScreenState
                     if (!mounted) return;
                     context.go('/home');
                   } else {
+                    // Always navigate to Sign Up page after onboarding
                     context.go(
                       '/login?mode=signup',
                       extra: {
@@ -1098,7 +1146,7 @@ class _MasterOnboardingScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      (ref.read(authProvider).status == AuthStatus.authenticated)
+                      widget.isSurveyMode
                           ? "LET'S START LEARNING"
                           : 'CONTINUE TO SIGN UP',
                       style: const TextStyle(
@@ -1109,7 +1157,11 @@ class _MasterOnboardingScreenState
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),

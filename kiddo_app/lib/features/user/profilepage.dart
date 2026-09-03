@@ -383,7 +383,7 @@ class _ProfilepageState extends ConsumerState<Profilepage> {
                           width: 240,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Image.asset(
-                            'assets/images/KidDo Character.png',
+                            'assets/images/kido_character.png',
                             height: 200,
                             fit: BoxFit.contain,
                           ),

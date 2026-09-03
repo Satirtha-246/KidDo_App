@@ -90,7 +90,7 @@ class _SlideNameInputState extends State<SlideNameInput> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/KidDo Character.png', height: 150),
+              Image.asset('assets/images/kido_character.png', height: 150),
               const SizedBox(height: 30),
               const Text(
                 "Hey there! What's your name?",
@@ -179,7 +179,7 @@ class SlideComplete extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/KidDo Character.png', height: 200).animate().shake(duration: 800.ms, hz: 4),
+              Image.asset('assets/images/kido_character.png', height: 200).animate().shake(duration: 800.ms, hz: 4),
               const SizedBox(height: 40),
               const Text(
                 "You're all set! 🎓",

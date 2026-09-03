@@ -81,6 +81,12 @@ flutter:
     - assets/animation/
     - assets/images/
     - assets/avatar/
+    - assets/data/
+    - assets/data/json_files/
+    - assets/data/json_files/math/
+    - assets/data/json_files/gk/
+    - assets/data/json_files/english/
+    - assets/data/json_files/computer/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

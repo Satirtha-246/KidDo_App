@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: { type: String, required: false, select: false },
     googleId: { type: String, default: null },
-    avatarUrl: { type: String, default: 'assets/images/KidDo Character.png' },
+    avatarUrl: { type: String, default: 'assets/images/kido_character.png' },
     age: { type: Number, default: 8, min: 3, max: 20 },
     gradeClass: { type: String, default: 'Class 3' },
     hasCompletedOnboarding: { type: Boolean, default: false },

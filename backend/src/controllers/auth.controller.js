@@ -142,7 +142,7 @@ exports.googleAuth = async (req, res, next) => {
         name: name || email.split('@')[0],
         email,
         googleId: googleId || `google_${Date.now()}`,
-        avatarUrl: avatarUrl || 'assets/images/KidDo Character.png',
+        avatarUrl: avatarUrl || 'assets/images/kido_character.png',
         age: age ? parseInt(age, 10) : 8,
         gradeClass: gradeClass || 'Class 3',
         hasCompletedOnboarding: Boolean(age && gradeClass),

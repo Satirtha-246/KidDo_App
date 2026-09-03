@@ -53,7 +53,7 @@ class _CelebrationBase extends StatelessWidget {
                         child: _Sparkle(color: Color(0xffffe066), size: 16)),
                     // Mascot / character
                     Image.asset(
-                      'assets/images/KidDo Character.png',
+                      'assets/images/kido_character.png',
                       height: 220,
                       fit: BoxFit.contain,
                     ),

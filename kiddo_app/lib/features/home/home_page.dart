@@ -101,7 +101,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     final user = userAsync.value;
 
     final streakCount = user?.streak ?? 5;
-    final iqCount = user?.iq ?? 999;
 
     return Scaffold(
       backgroundColor: Colors.white,

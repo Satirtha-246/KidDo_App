@@ -181,7 +181,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           'email': googleUser.email,
           'name': googleUser.displayName ?? googleUser.email.split('@')[0],
           'googleId': googleUser.id,
-          'avatarUrl': googleUser.photoUrl ?? 'assets/images/KidDo Character.png',
+          'avatarUrl': googleUser.photoUrl ?? 'assets/images/kido_character.png',
         },
       );
 
@@ -203,7 +203,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         id: userJson['_id'] as String,
         name: userJson['name'] as String,
         email: userJson['email']?.toString() ?? '',
-        avatarUrl: (userJson['avatarUrl'] as String?) ?? 'assets/images/KidDo Character.png',
+        avatarUrl: (userJson['avatarUrl'] as String?) ?? 'assets/images/kido_character.png',
         iq: (userJson['iq'] as num?)?.toInt() ?? 0,
         coins: (userJson['coins'] as num?)?.toInt() ?? 0,
         streak: (userJson['streak'] as num?)?.toInt() ?? 0,
@@ -244,7 +244,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           'email': email,
           'name': name,
           'googleId': googleId ?? 'google_${email.hashCode.abs()}',
-          'avatarUrl': avatarUrl ?? 'assets/images/KidDo Character.png',
+          'avatarUrl': avatarUrl ?? 'assets/images/kido_character.png',
         },
       );
 
@@ -266,7 +266,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         id: userJson['_id'] as String,
         name: userJson['name'] as String,
         email: userJson['email']?.toString() ?? '',
-        avatarUrl: (userJson['avatarUrl'] as String?) ?? 'assets/images/KidDo Character.png',
+        avatarUrl: (userJson['avatarUrl'] as String?) ?? 'assets/images/kido_character.png',
         iq: (userJson['iq'] as num?)?.toInt() ?? 0,
         coins: (userJson['coins'] as num?)?.toInt() ?? 0,
         streak: (userJson['streak'] as num?)?.toInt() ?? 0,

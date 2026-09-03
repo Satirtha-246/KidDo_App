@@ -16,7 +16,7 @@ class ApiUserRepository implements UserRepository {
       name: json['name'] as String,
       email: json['email']?.toString() ?? '',
       avatarUrl: (json['avatarUrl'] as String?) ??
-          'assets/images/KidDo Character.png',
+          'assets/images/kido_character.png',
       iq: (json['iq'] as num?)?.toInt() ?? 0,
       coins: (json['coins'] as num?)?.toInt() ?? 0,
       streak: (json['streak'] as num?)?.toInt() ?? 0,

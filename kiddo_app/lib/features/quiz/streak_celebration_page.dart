@@ -128,7 +128,7 @@ class StreakCelebrationPage extends StatelessWidget {
                   ),
                 // Character
                 Image.asset(
-                  'assets/images/KidDo Character.png',
+                  'assets/images/kido_character.png',
                   height: 180,
                   fit: BoxFit.contain,
                 ),

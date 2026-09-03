@@ -37,7 +37,7 @@ class MascotWidget extends StatelessWidget {
 
   Widget _buildAnimatedMascot() {
     final image = Image.asset(
-      'assets/images/KidDo Character.png',
+      'assets/images/kido_character.png',
       fit: BoxFit.contain,
     );
 

@@ -285,7 +285,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       {
         'name': widget.defaultName?.isNotEmpty == true ? widget.defaultName! : 'Satirtha Singha',
         'email': 'satirtha246@gmail.com',
-        'avatar': 'assets/images/KidDo Character.png',
+        'avatar': 'assets/images/kido_character.png',
       },
       {
         'name': 'KidDo Learner',

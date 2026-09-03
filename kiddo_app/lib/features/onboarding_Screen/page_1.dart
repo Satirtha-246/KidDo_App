@@ -53,7 +53,7 @@ class Page1 extends StatelessWidget {
             child: Container(
               height: 400,
               width: 400,
-              child: Image.asset("assets/images/KidDo Character.png"),
+              child: Image.asset("assets/images/kido_character.png"),
             ),
           ),
 
