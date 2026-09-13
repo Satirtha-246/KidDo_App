@@ -93,4 +93,13 @@ const List<ShopItem> kShopCatalogue = [
     category: ShopCategory.powerUp,
     emoji: '💡',
   ),
+  ShopItem(
+    id: 'powerup_freeze',
+    name: 'Streak Freeze',
+    description: 'Protect your daily learning streak even if you miss a day!',
+    imageAsset: 'assets/images/kido_character.png',
+    coinCost: 50,
+    category: ShopCategory.powerUp,
+    emoji: '❄️',
+  ),
 ];

@@ -11,6 +11,11 @@ import 'package:kiddo_app/features/onboarding_Screen/onboarding_screen.dart';
 import 'package:kiddo_app/features/Auth/Login_page.dart';
 import 'package:kiddo_app/features/user/profilepage.dart';
 
+import 'package:kiddo_app/features/boss_fight/boss_fight_page.dart';
+import 'package:kiddo_app/features/parent/parent_spectator_page.dart';
+import 'package:kiddo_app/features/social/feed_page.dart';
+import 'package:kiddo_app/features/social/friends_and_contests_page.dart';
+
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _homeNavigatorKey =
@@ -102,6 +107,31 @@ final GoRouter appRouter = GoRouter(
         },
         transitionDuration: const Duration(milliseconds: 350),
       ),
+    ),
+    GoRoute(
+      path: '/boss-fight',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final subject = extra?['subject'] as String? ?? 'Math';
+        final chapter = extra?['chapter'] as String? ?? 'Chapter 1: Boss Battle';
+        return BossFightPage(subject: subject, chapter: chapter);
+      },
+    ),
+    GoRoute(
+      path: '/parent-dashboard',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ParentSpectatorPage(),
+    ),
+    GoRoute(
+      path: '/social-feed',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SocialFeedPage(),
+    ),
+    GoRoute(
+      path: '/contests',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FriendsAndContestsPage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (BuildContext context, GoRouterState state,

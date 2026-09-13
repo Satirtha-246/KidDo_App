@@ -12,6 +12,7 @@ const levelRoutes = require('./routes/levels.routes');
 const shopRoutes = require('./routes/shop.routes');
 const gamesRoutes = require('./routes/games.routes');
 const adminRoutes = require('./routes/admin.routes');
+const featuresRoutes = require('./routes/features.routes');
 const BroadcastMessage = require('./models/BroadcastMessage');
 
 // Middleware imports
@@ -75,6 +76,7 @@ app.use('/api/levels', levelRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/games', gamesRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/features', featuresRoutes);
 
 // ── 404 Handler ────────────────────────────────────────────────────────────────
 app.use((req, res) => {

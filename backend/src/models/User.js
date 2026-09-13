@@ -72,10 +72,17 @@ const userSchema = new mongoose.Schema(
     // Detailed list of every quiz completed (for star tracking per quiz)
     completedQuizzes: { type: [completedQuizSchema], default: [] },
 
-    // ── Shop ────────────────────────────────────────────────────────────────
+    // ── Shop & Inventory ───────────────────────────────────────────────────
     ownedItemIds: { type: [String], default: [] },
     activeTheme: { type: String, default: 'default' },
     activeAvatar: { type: String, default: '' },
+    streakFreezes: { type: Number, default: 1 },
+    hasFeedSubscription: { type: Boolean, default: false },
+
+    // ── Habit & Parent Spectator Metrics ────────────────────────────────────
+    learningMinutesToday: { type: Number, default: 0 },
+    weeklyActivityMinutes: { type: [Number], default: [15, 20, 10, 25, 30, 0, 15] },
+    parentPin: { type: String, default: '1234' },
   },
   { timestamps: true }
 );

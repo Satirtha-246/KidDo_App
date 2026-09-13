@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kiddo_app/core/providers/user_provider.dart';
+import 'package:kiddo_app/core/services/features_service.dart';
 import 'package:kiddo_app/features/user/profilepage.dart';
 import 'package:kiddo_app/features/lessons/lesson_details_page.dart';
+import 'package:kiddo_app/features/home/widgets/mascot_suggestion_banner.dart';
+import 'package:kiddo_app/features/parent/parent_spectator_page.dart';
+import 'package:kiddo_app/features/social/feed_page.dart';
+import 'package:kiddo_app/features/social/friends_and_contests_page.dart';
+import 'package:kiddo_app/features/boss_fight/boss_fight_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -13,6 +19,8 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late final PageController _subjectPageController;
+  List<Map<String, dynamic>> _challenges = [];
+  bool _isLoadingChallenges = true;
 
   static const List<_SubjectInfo> _subjects = [
     _SubjectInfo(
@@ -66,6 +74,41 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _subjectPageController = PageController(viewportFraction: 0.88);
+    _loadChallenges();
+  }
+
+  Future<void> _loadChallenges() async {
+    final list = await FeaturesService().getDailyChallenges();
+    if (mounted) {
+      setState(() {
+        _challenges = list;
+        _isLoadingChallenges = false;
+      });
+    }
+  }
+
+  Future<void> _claimChallenge(Map<String, dynamic> challenge) async {
+    try {
+      final res = await FeaturesService().claimChallenge(challenge['_id']);
+      if (res != null) {
+        ref.invalidate(userProvider);
+        _loadChallenges();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Claimed +${res['earnedIq']} IQ & +${res['earnedCoins']} Coins! 🎉'),
+              backgroundColor: const Color(0xFF16A34A),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
   @override
@@ -113,7 +156,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               // ── Top Bar (Matching Image 1) ───────────────────────────
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                 child: Row(
                   children: [
                     // Profile Avatar
@@ -146,6 +189,39 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
 
                     const Spacer(),
+
+                    // Parent Mode Quick Action
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(builder: (_) => const ParentSpectatorPage()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+                        ),
+                        child: Row(
+                          children: const [
+                            Text('🛡️', style: TextStyle(fontSize: 14)),
+                            SizedBox(width: 4),
+                            Text(
+                              'Parents',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF475569),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
 
                     // Coins Badge
                     Container(
@@ -211,6 +287,64 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ],
                 ),
               ),
+
+              // ── Adaptive Mascot Suggestion Banner (Section 2.1) ───────
+              const MascotSuggestionBanner(),
+
+              // ── Quick Feature Action Hub ──────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionHubButton(
+                        title: 'Arena & Friends',
+                        icon: '⚔️',
+                        bgColor: const Color(0xFFFAF5FF),
+                        borderColor: const Color(0xFFDDD6FE),
+                        textColor: const Color(0xFF7C3AED),
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute(builder: (_) => const FriendsAndContestsPage()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildActionHubButton(
+                        title: 'Boss Battle',
+                        icon: '🐉',
+                        bgColor: const Color(0xFFFFF1F2),
+                        borderColor: const Color(0xFFFECDD3),
+                        textColor: const Color(0xFFE11D48),
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute(builder: (_) => const BossFightPage()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildActionHubButton(
+                        title: 'Social Feed',
+                        icon: '🌟',
+                        bgColor: const Color(0xFFF0FDF4),
+                        borderColor: const Color(0xFFBBF7D0),
+                        textColor: const Color(0xFF16A34A),
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute(builder: (_) => const SocialFeedPage()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
 
               // ── Daily Streak Banner ("5 Days!") ──────────────────────
               Padding(
@@ -344,7 +478,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
               const SizedBox(height: 24),
 
-              // ── Daily Challenges Section ─────────────────────────────
+              // ── Daily Challenges Section (Section 2.3 Live Data) ──────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -360,40 +494,88 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildChallengeCard(
-                      taskTitle: 'Task 1',
-                      description: 'Start new chapter.',
-                      fractionText: '2/3',
-                      fractionValue: 2 / 3,
-                      bgColor: const Color(0xFFE0F2FE),
-                      accentColor: const Color(0xFF0284C7),
-                      mascotEmoji: '🐘',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildChallengeCard(
-                      taskTitle: 'Task 2',
-                      description: "Complete today's Splash.",
-                      fractionText: '1/2',
-                      fractionValue: 1 / 2,
-                      bgColor: const Color(0xFFDCFCE7),
-                      accentColor: const Color(0xFF16A34A),
-                      mascotEmoji: '🦹',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildChallengeCard(
-                      taskTitle: 'Task 3',
-                      description: 'Complete 3 quiz of Science.',
-                      fractionText: '1/3',
-                      fractionValue: 1 / 3,
-                      bgColor: const Color(0xFFFEF9C3),
-                      accentColor: const Color(0xFFCA8A04),
-                      mascotEmoji: '👩‍🔬',
-                    ),
+                    if (_isLoadingChallenges)
+                      const Center(child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      ))
+                    else if (_challenges.isEmpty)
+                      const Text('No daily challenges today.', style: TextStyle(color: Color(0xFF64748B)))
+                    else
+                      ...List.generate(_challenges.length, (index) {
+                        final challenge = _challenges[index];
+                        final current = challenge['currentCount'] ?? 0;
+                        final target = challenge['targetCount'] ?? 3;
+                        final fraction = (current / target).clamp(0.0, 1.0);
+                        final isClaimed = challenge['isClaimed'] == true;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _buildChallengeCard(
+                            taskTitle: challenge['taskTitle'] ?? 'Task ${index + 1}',
+                            description: challenge['description'] ?? '',
+                            fractionText: '$current/$target',
+                            fractionValue: fraction.toDouble(),
+                            bgColor: index == 0
+                                ? const Color(0xFFE0F2FE)
+                                : index == 1
+                                    ? const Color(0xFFDCFCE7)
+                                    : const Color(0xFFFEF9C3),
+                            accentColor: index == 0
+                                ? const Color(0xFF0284C7)
+                                : index == 1
+                                    ? const Color(0xFF16A34A)
+                                    : const Color(0xFFCA8A04),
+                            mascotEmoji: challenge['mascotEmoji'] ?? '🐘',
+                            isClaimed: isClaimed,
+                            canClaim: fraction >= 0.3 && !isClaimed,
+                            onClaim: () => _claimChallenge(challenge),
+                          ),
+                        );
+                      }),
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionHubButton({
+    required String title,
+    required String icon,
+    required Color bgColor,
+    required Color borderColor,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: borderColor, width: 1.5),
+        ),
+        child: Column(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: textColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -592,7 +774,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // ── Challenge Card Builder (Matching Image 1) ─────────────────────────
   Widget _buildChallengeCard({
     required String taskTitle,
     required String description,
@@ -601,6 +782,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     required Color bgColor,
     required Color accentColor,
     required String mascotEmoji,
+    bool isClaimed = false,
+    bool canClaim = false,
+    VoidCallback? onClaim,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -668,6 +852,37 @@ class _HomePageState extends ConsumerState<HomePage> {
               ],
             ),
           ),
+          if (canClaim) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: onClaim,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Text(
+                  'Claim',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ] else if (isClaimed) ...[
+            const SizedBox(width: 8),
+            const Text(
+              '✅ Claimed',
+              style: TextStyle(
+                color: Color(0xFF16A34A),
+                fontWeight: FontWeight.w800,
+                fontSize: 11,
+              ),
+            ),
+          ],
         ],
       ),
     );

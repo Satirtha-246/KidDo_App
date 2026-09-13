@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kiddo_app/core/models/user_model.dart';
 import 'package:kiddo_app/core/providers/user_provider.dart';
 
+import 'package:kiddo_app/core/services/features_service.dart';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LeaderboardPage — redesigned to match the mockup
 // ─────────────────────────────────────────────────────────────────────────────
@@ -14,7 +16,26 @@ class LeaderboardPage extends ConsumerStatefulWidget {
 }
 
 class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
-  bool _isWeekly = true;
+  int _selectedTabIndex = 0; // 0: Global, 1: Friendly Zone
+  List<dynamic> _friendlyPlayers = [];
+  bool _isLoadingFriendly = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFriendly();
+  }
+
+  Future<void> _loadFriendly() async {
+    setState(() => _isLoadingFriendly = true);
+    final list = await FeaturesService().getFriendlyLeaderboard();
+    if (mounted) {
+      setState(() {
+        _friendlyPlayers = list;
+        _isLoadingFriendly = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,29 +79,23 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                          40,
-                        ), // Fully rounded corners
+                        borderRadius: BorderRadius.circular(40),
                       ),
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: const Color(
-                            0xffe5e7eb,
-                          ), // Light grey for tabs pill
+                          color: const Color(0xffe5e7eb),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Row(
                           children: [
-                            _buildTab('Weekly', _isWeekly),
-                            _buildTab('Monthly', !_isWeekly),
+                            _buildTab('Global', _selectedTabIndex == 0, 0),
+                            _buildTab('Friendly Zone', _selectedTabIndex == 1, 1),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ), // Gap before the list container starts
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -194,10 +209,13 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
   }
 
   // ── Toggle tab pill ─────────────────────────────────────────────────
-  Widget _buildTab(String label, bool selected) {
+  Widget _buildTab(String label, bool selected, int index) {
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _isWeekly = label == 'Weekly'),
+        onTap: () {
+          setState(() => _selectedTabIndex = index);
+          if (index == 1) _loadFriendly();
+        },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
@@ -210,15 +228,11 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
           child: Text(
             label,
             style: TextStyle(
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-              fontSize: 26,
-              fontFamily: 'Dongle',
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              fontSize: 16,
               color: selected
                   ? const Color(0xfff97316)
-                  : const Color(
-                      0xff6b7280,
-                    ), // Orange when selected, Grey when unselected
-              height: 1.0,
+                  : const Color(0xff6b7280),
             ),
           ),
         ),
